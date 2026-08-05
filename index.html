@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sensory & Motor Physiology — Study Tool</title>
+<style>
+  :root{
+    --bg:#f3f7fa;
+    --panel:#ffffff;
+    --ink:#1c2b36;
+    --ink-soft:#4b6472;
+    --line:#dbe6ec;
+    --blue:#2e6a86;
+    --blue-deep:#1f4e63;
+    --blue-pale:#e8f1f6;
+    --green:#2f8f5b;
+    --green-pale:#e7f6ee;
+    --red:#c94a3f;
+    --red-pale:#fbeae8;
+    --amber:#c98a2c;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(28,43,54,.06), 0 6px 20px rgba(28,43,54,.06);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:"Georgia","Iowan Old Style",serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  .app{max-width:860px;margin:0 auto;padding:24px 20px 80px;}
+
+  header.top{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom:20px; flex-wrap:wrap; gap:8px;
+  }
+  header.top h1{
+    font-size:1.5rem; margin:0; font-weight:700; color:var(--blue-deep);
+    letter-spacing:-.01em;
+  }
+  header.top .sub{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.8rem; color:var(--ink-soft);
+  }
+
+  nav.tabs{
+    display:flex; gap:8px; margin-bottom:24px;
+    background:var(--panel); padding:6px; border-radius:12px;
+    box-shadow:var(--shadow); border:1px solid var(--line);
+  }
+  nav.tabs button{
+    flex:1; border:none; background:transparent; padding:10px 8px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.85rem; font-weight:600; color:var(--ink-soft);
+    border-radius:8px; cursor:pointer; transition:.15s;
+  }
+  nav.tabs button.active{background:var(--blue); color:#fff;}
+  nav.tabs button:hover:not(.active){background:var(--blue-pale); color:var(--blue-deep);}
+
+  .panel{
+    background:var(--panel); border-radius:var(--radius); box-shadow:var(--shadow);
+    border:1px solid var(--line); padding:28px 30px;
+  }
+
+  /* ---- Summary ---- */
+  #view-summary h2.part{
+    font-size:1.2rem; color:var(--blue-deep); margin:34px 0 6px;
+    padding-bottom:8px; border-bottom:2px solid var(--blue);
+  }
+  #view-summary h2.part:first-child{margin-top:0;}
+  #view-summary h3{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.78rem; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--blue); margin:22px 0 8px; font-weight:700;
+  }
+  #view-summary p{line-height:1.65; margin:0 0 14px; font-size:.98rem; color:var(--ink);}
+  #view-summary table{width:100%; border-collapse:collapse; margin:6px 0 20px; font-size:.88rem;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+  #view-summary table caption{text-align:left; font-weight:700; color:var(--blue-deep); margin-bottom:6px; font-size:.85rem;}
+  #view-summary th{background:var(--blue); color:#fff; text-align:left; padding:8px 10px; font-weight:600;}
+  #view-summary td{padding:8px 10px; border-bottom:1px solid var(--line); vertical-align:top;}
+  #view-summary tr:nth-child(even) td{background:var(--blue-pale);}
+
+  /* ---- Flashcards ---- */
+  #view-flash{text-align:center;}
+  .fc-progress{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.8rem; color:var(--ink-soft); margin-bottom:14px;
+  }
+  .fc-stage{perspective:1600px; height:280px; margin-bottom:20px; cursor:pointer;}
+  .fc-card{
+    position:relative; width:100%; height:100%; transition:transform .5s cubic-bezier(.4,.2,.2,1);
+    transform-style:preserve-3d;
+  }
+  .fc-card.flipped{transform:rotateY(180deg);}
+  .fc-face{
+    position:absolute; inset:0; backface-visibility:hidden;
+    border-radius:16px; display:flex; align-items:center; justify-content:center;
+    padding:32px; font-size:1.15rem; line-height:1.5; box-shadow:var(--shadow);
+    border:1px solid var(--line);
+  }
+  .fc-face.front{background:linear-gradient(155deg,#ffffff,var(--blue-pale)); color:var(--ink);}
+  .fc-face.back{
+    background:linear-gradient(155deg,var(--blue),var(--blue-deep)); color:#fff;
+    transform:rotateY(180deg); font-weight:600;
+  }
+  .fc-label{
+    position:absolute; top:14px; left:18px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.68rem; text-transform:uppercase; letter-spacing:.08em; opacity:.6;
+  }
+  .fc-hint{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.75rem; color:var(--ink-soft); margin-bottom:18px;
+  }
+  .fc-controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+
+  /* ---- Buttons ---- */
+  button.btn{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-weight:600; font-size:.88rem; padding:11px 20px; border-radius:10px;
+    border:1px solid var(--line); background:#fff; color:var(--blue-deep);
+    cursor:pointer; transition:.15s;
+  }
+  button.btn:hover{background:var(--blue-pale); border-color:var(--blue);}
+  button.btn.primary{background:var(--blue); color:#fff; border-color:var(--blue);}
+  button.btn.primary:hover{background:var(--blue-deep);}
+  button.btn:disabled{opacity:.4; cursor:not-allowed;}
+  button.btn.ghost{background:transparent; border-color:transparent; color:var(--ink-soft);}
+  button.btn.ghost:hover{color:var(--red); background:var(--red-pale);}
+
+  /* ---- MCQ ---- */
+  #view-quiz .quiz-top{
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:18px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  }
+  .quiz-progress-bar{
+    height:6px; background:var(--blue-pale); border-radius:4px; overflow:hidden; margin-bottom:20px;
+  }
+  .quiz-progress-fill{height:100%; background:var(--blue); transition:width .3s;}
+  .quiz-score{font-size:.82rem; color:var(--ink-soft); font-weight:600;}
+  .q-text{font-size:1.12rem; line-height:1.5; margin-bottom:20px; font-weight:600; color:var(--ink);}
+  .q-options{display:flex; flex-direction:column; gap:10px; margin-bottom:20px;}
+  .q-option{
+    text-align:left; padding:13px 16px; border-radius:10px; border:1.5px solid var(--line);
+    background:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.92rem; color:var(--ink); cursor:pointer; transition:.12s;
+    display:flex; gap:10px; align-items:center;
+  }
+  .q-option:hover:not(.locked){border-color:var(--blue); background:var(--blue-pale);}
+  .q-option .letter{
+    width:22px; height:22px; border-radius:50%; background:var(--blue-pale); color:var(--blue-deep);
+    display:flex; align-items:center; justify-content:center; font-size:.72rem; font-weight:700; flex-shrink:0;
+  }
+  .q-option.correct{background:var(--green-pale); border-color:var(--green); color:#155c37;}
+  .q-option.correct .letter{background:var(--green); color:#fff;}
+  .q-option.wrong{background:var(--red-pale); border-color:var(--red); color:#8a2f26;}
+  .q-option.wrong .letter{background:var(--red); color:#fff;}
+  .q-option.locked{cursor:default;}
+  .q-feedback{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    font-size:.85rem; font-weight:700; margin-bottom:16px; padding:10px 14px; border-radius:10px;
+  }
+  .q-feedback.correct{background:var(--green-pale); color:#155c37;}
+  .q-feedback.wrong{background:var(--red-pale); color:#8a2f26;}
+  .quiz-controls{display:flex; justify-content:space-between; align-items:center; margin-top:10px;}
+
+  .quiz-end{text-align:center; padding:20px 0;}
+  .quiz-end .big{font-size:2.4rem; font-weight:800; color:var(--blue-deep); margin-bottom:4px;}
+  .quiz-end .msg{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; color:var(--ink-soft); margin-bottom:22px;}
+
+  .hidden{display:none !important;}
+
+  @media (max-width:600px){
+    .panel{padding:20px 18px;}
+    .fc-stage{height:230px;}
+    .fc-face{font-size:1rem; padding:22px;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1>Sensory &amp; Motor Physiology</h1>
+    <div class="sub">Summary · 100 Flashcards · 100 Practice Questions</div>
+  </header>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-view="summary">Summary</button>
+    <button class="tab-btn" data-view="flash">Flashcards</button>
+    <button class="tab-btn" data-view="quiz">Practice Quiz</button>
+  </nav>
+
+  <div class="panel">
+    <div id="view-summary"></div>
+
+    <div id="view-flash" class="hidden">
+      <div class="fc-progress" id="fc-progress">Card 1 of 100</div>
+      <div class="fc-stage" id="fc-stage">
+        <div class="fc-card" id="fc-card">
+          <div class="fc-face front"><span class="fc-label">Question</span><div id="fc-front-text"></div></div>
+          <div class="fc-face back"><span class="fc-label" style="color:#fff;opacity:.7">Answer</span><div id="fc-back-text"></div></div>
+        </div>
+      </div>
+      <div class="fc-hint">Tap the card to flip it</div>
+      <div class="fc-controls">
+        <button class="btn" id="fc-prev">← Previous</button>
+        <button class="btn" id="fc-shuffle">Shuffle</button>
+        <button class="btn primary" id="fc-next">Next →</button>
+      </div>
+    </div>
+
+    <div id="view-quiz" class="hidden">
+      <div id="quiz-active">
+        <div class="quiz-top">
+          <span id="quiz-count">Question 1 of 100</span>
+          <span class="quiz-score" id="quiz-score">Score: 0 / 0</span>
+        </div>
+        <div class="quiz-progress-bar"><div class="quiz-progress-fill" id="quiz-progress-fill" style="width:1%"></div></div>
+        <div class="q-text" id="q-text"></div>
+        <div class="q-options" id="q-options"></div>
+        <div class="q-feedback hidden" id="q-feedback"></div>
+        <div class="quiz-controls">
+          <button class="btn ghost" id="quiz-exit">Stop &amp; exit</button>
+          <button class="btn primary hidden" id="quiz-next">Next question →</button>
+        </div>
+      </div>
+      <div id="quiz-end" class="quiz-end hidden">
+        <div class="big" id="quiz-final-score"></div>
+        <div class="msg" id="quiz-final-msg"></div>
+        <button class="btn primary" id="quiz-restart">Start over</button>
+        <button class="btn" id="quiz-review-missed">Review missed only</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const FLASHCARDS = [
+  [
+    "Eyeball diameter",
+    "About 24 mm"
+  ],
+  [
+    "Eyeball proportions",
+    "Anterior segment = 1/6 of volume; posterior segment = 5/6 of volume"
+  ],
+  [
+    "What lines the posterior segment of the eye?",
+    "The retina"
+  ],
+  [
+    "Optic axis",
+    "Line joining the anterior pole and posterior pole"
+  ],
+  [
+    "Visual axis",
+    "Line joining a point on the cornea (near the anterior pole) and the fovea centralis"
+  ],
+  [
+    "Cilia count, upper eyelid",
+    "100–150"
+  ],
+  [
+    "Cilia count, lower eyelid",
+    "50–75"
+  ],
+  [
+    "What causes a stye?",
+    "Infection of the Meibomian or sebaceous glands in the eyelid"
+  ],
+  [
+    "Palpebral fissure length",
+    "About 25 mm"
+  ],
+  [
+    "Palpebral fissure width when open",
+    "12–15 mm"
+  ],
+  [
+    "Location of the lacrimal gland",
+    "Upper and outer border of the eye socket"
+  ],
+  [
+    "Tear drainage pathway",
+    "Conjunctiva → lacrimal ducts → lacrimal sac → nasolacrimal duct → nose"
+  ],
+  [
+    "What in tears kills bacteria?",
+    "Lysozyme"
+  ],
+  [
+    "Nerve controlling tear secretion",
+    "Parasympathetic fibers of the facial (VII cranial) nerve"
+  ],
+  [
+    "Outermost layer of the retina",
+    "Pigment epithelial layer"
+  ],
+  [
+    "Function of the pigment epithelial layer",
+    "Absorbs light, stores vitamin A, phagocytoses debris from rods/cones"
+  ],
+  [
+    "Layer containing the light-sensitive segments of rods and cones",
+    "Layer of rods and cones"
+  ],
+  [
+    "What forms the external limiting membrane?",
+    "Müller fibers"
+  ],
+  [
+    "Outer nuclear layer contains",
+    "Nuclei of rod and cone cells"
+  ],
+  [
+    "Outer plexiform layer is the site of",
+    "Synapses between rod/cone terminals and bipolar cell dendrites"
+  ],
+  [
+    "Inner nuclear layer contains",
+    "Bipolar cells, Müller fiber nuclei, horizontal cells, amacrine cells"
+  ],
+  [
+    "Inner plexiform layer is the site of",
+    "Synapses between bipolar cell axons and ganglion cell dendrites"
+  ],
+  [
+    "Ganglion cell layer contains",
+    "Multipolar ganglion cells (giant and midget) whose axons form the optic nerve"
+  ],
+  [
+    "Innermost retinal layer",
+    "Internal limiting membrane"
+  ],
+  [
+    "What forms the internal limiting membrane?",
+    "Expanded ends of Müller fibers"
+  ],
+  [
+    "Optic disk (blind spot)",
+    "Where ganglion cell axons converge to form the optic nerve; has no rods or cones"
+  ],
+  [
+    "Fovea centralis",
+    "Central depression of the macula; contains only cones; site of sharpest vision"
+  ],
+  [
+    "What does macular degeneration lead to?",
+    "Blindness"
+  ],
+  [
+    "Vitreous humor composition",
+    "Proteoglycans, albumin, hyaluronic acid — a viscous gel"
+  ],
+  [
+    "Aqueous humor volume",
+    "About 0.13 mL"
+  ],
+  [
+    "Aqueous humor pH",
+    "About 7.4"
+  ],
+  [
+    "What separates the anterior and posterior chambers?",
+    "The iris (chambers communicate via the pupil)"
+  ],
+  [
+    "Where is aqueous humor formed?",
+    "Ciliary processes"
+  ],
+  [
+    "Aqueous humor flow pathway",
+    "Ciliary processes → posterior chamber → pupil → anterior chamber → limbus → trabecular meshwork → Canal of Schlemm → anterior ciliary vein"
+  ],
+  [
+    "Rate of aqueous humor formation",
+    "2–3 µL per minute"
+  ],
+  [
+    "Anterior chamber volume",
+    "230–250 µL"
+  ],
+  [
+    "Posterior chamber volume",
+    "50–60 µL"
+  ],
+  [
+    "Normal intraocular pressure (IOP)",
+    "12–20 mmHg"
+  ],
+  [
+    "Instrument used to measure IOP",
+    "Tonometer"
+  ],
+  [
+    "IOP in glaucoma",
+    "Can rise to 60–70 mmHg"
+  ],
+  [
+    "Lens focal length",
+    "44 mm"
+  ],
+  [
+    "Lens refractive power",
+    "23 D"
+  ],
+  [
+    "What holds the lens in place?",
+    "Suspensory ligaments (zonular fibers) attached to ciliary bodies"
+  ],
+  [
+    "Constrictor pupillae function",
+    "Narrows the pupil"
+  ],
+  [
+    "Dilator pupillae function",
+    "Widens the pupil"
+  ],
+  [
+    "Ciliary muscle function",
+    "Contracts to increase lens curvature during accommodation"
+  ],
+  [
+    "The six extrinsic eye muscles",
+    "Superior rectus, inferior rectus, medial rectus, lateral rectus, superior oblique, inferior oblique"
+  ],
+  [
+    "What happens at the optic chiasm?",
+    "Medial (nasal) fibers from each optic nerve cross the midline"
+  ],
+  [
+    "Which retinal fibers carry the nasal visual field?",
+    "Temporal retina fibers (lateral, uncrossed)"
+  ],
+  [
+    "Which retinal fibers cross at the chiasm?",
+    "Nasal retina fibers (medial)"
+  ],
+  [
+    "Where do most optic tract fibers synapse?",
+    "Lateral geniculate body (LGB) of the thalamus"
+  ],
+  [
+    "What forms the optic radiation?",
+    "Axons from LGB neurons projecting to the visual cortex"
+  ],
+  [
+    "Optic tract fibers that bypass the LGB go to...",
+    "The superior colliculus (visual reflexes)"
+  ],
+  [
+    "Lesion of the left optic nerve causes",
+    "Total blindness of the left eye"
+  ],
+  [
+    "Lesion of the medial fibers of the optic chiasm causes",
+    "Bitemporal hemianopia (classic pituitary tumor sign)"
+  ],
+  [
+    "Lesion of the lateral fibers on one side of the chiasm causes",
+    "Nasal hemianopia on that same side"
+  ],
+  [
+    "Lesion of the left optic radiation causes",
+    "Right homonymous hemianopia"
+  ],
+  [
+    "Definition of homonymous hemianopia",
+    "Same-side visual field loss in both eyes, contralateral to the lesion"
+  ],
+  [
+    "Two main categories of hearing loss",
+    "Conduction deafness and nerve (sensorineural) deafness"
+  ],
+  [
+    "Otosclerosis",
+    "Fixation of the stapes footplate to the oval window, causing conduction deafness"
+  ],
+  [
+    "Two ototoxic antibiotics mentioned",
+    "Streptomycin and gentamicin"
+  ],
+  [
+    "Rinne test: normal result",
+    "AC > BC (air conduction greater than bone conduction)"
+  ],
+  [
+    "Rinne test: conduction deafness result",
+    "BC > AC"
+  ],
+  [
+    "Rinne test: nerve deafness result",
+    "Both AC and BC are diminished or lost"
+  ],
+  [
+    "Where is the tuning fork placed first in the Rinne test?",
+    "The mastoid process"
+  ],
+  [
+    "Weber test: normal result",
+    "Sound heard equally in both ears"
+  ],
+  [
+    "Weber test: unilateral conduction deafness result",
+    "Sound lateralizes (heard louder) to the affected ear"
+  ],
+  [
+    "Weber test: unilateral nerve deafness result",
+    "Sound lateralizes (heard louder) to the unaffected ear"
+  ],
+  [
+    "Where is the tuning fork placed in the Weber test?",
+    "Midline of the skull (vertex/forehead)"
+  ],
+  [
+    "Audiometry",
+    "Quantitative test measuring hearing thresholds across frequencies"
+  ],
+  [
+    "Kinesthesia",
+    "Sensation of movement"
+  ],
+  [
+    "Paresthesia",
+    "Abnormal sensation"
+  ],
+  [
+    "Three types of sensation",
+    "Somatic, visceral, and special sensations"
+  ],
+  [
+    "Chemoreceptors detect",
+    "Chemical stimuli (taste, smell, aortic/carotid bodies)"
+  ],
+  [
+    "Mechanoreceptors detect",
+    "Mechanical deformation (touch, pressure, hair cells)"
+  ],
+  [
+    "Teleceptors",
+    "Detect stimuli at a distance (e.g., auditory receptors)"
+  ],
+  [
+    "Interoceptors",
+    "Detect stimuli from the internal environment (e.g., baroreceptors, osmoreceptors)"
+  ],
+  [
+    "Rapidly adapting receptors",
+    "Sensation decreases quickly with sustained stimulus (e.g., touch)"
+  ],
+  [
+    "Non-adapting receptors",
+    "Sensation does not change with sustained stimulus (e.g., pain)"
+  ],
+  [
+    "What ion drives the generator potential?",
+    "Sodium (Na+)"
+  ],
+  [
+    "Meissner's corpuscles detect",
+    "Fine touch, flutter, low-frequency vibration in non-hairy skin"
+  ],
+  [
+    "Merkel's discs detect",
+    "Fine touch, sustained pressure, texture discrimination"
+  ],
+  [
+    "Pacinian corpuscles detect",
+    "Deep pressure and high-frequency vibration; very rapidly adapting"
+  ],
+  [
+    "Ruffini's endings detect",
+    "Skin stretch and sustained pressure; adapt very slowly"
+  ],
+  [
+    "Pathway for crude touch",
+    "Anterior spinothalamic tract"
+  ],
+  [
+    "Pathway for fine (discriminative) touch",
+    "Dorsal column–medial lemniscal pathway"
+  ],
+  [
+    "Cold receptor peak activation temperature",
+    "About 25°C, carried by A-delta fibers"
+  ],
+  [
+    "Warm receptor peak activation temperature",
+    "About 42°C, carried by C fibers"
+  ],
+  [
+    "A-delta fibers carry",
+    "Fast, sharp, well-localized pain (\"first pain\")"
+  ],
+  [
+    "C fibers carry",
+    "Dull, aching, poorly localized pain (\"second pain\")"
+  ],
+  [
+    "Chemical stimuli that trigger pain receptors",
+    "Bradykinin, histamine, K+, prostaglandins"
+  ],
+  [
+    "Referred pain",
+    "Pain felt in a location different from its actual site of origin"
+  ],
+  [
+    "Where is two-point discrimination best?",
+    "Fingertips and lips"
+  ],
+  [
+    "Muscle spindle location and function",
+    "In the muscle belly, parallel to extrafusal fibers; detects muscle length and rate of stretch"
+  ],
+  [
+    "Golgi tendon organ location and function",
+    "At the muscle-tendon junction, in series with fibers; detects tension, provides protective inhibition"
+  ],
+  [
+    "Which receptor is the dominant contributor to conscious proprioception?",
+    "Muscle spindles (more than joint receptors)"
+  ],
+  [
+    "Three functional regions of the cerebellum",
+    "Vestibulocerebellum, spinocerebellum, cerebrocerebellum"
+  ],
+  [
+    "Vestibulocerebellum function",
+    "Balance and eye movements"
+  ],
+  [
+    "Spinocerebellum function",
+    "Posture, gait, muscle tone"
+  ],
+  [
+    "Cerebrocerebellum function",
+    "Planning and coordination of skilled voluntary movement"
+  ]
+];
+const MCQS = [["What is the approximate diameter of the eyeball?",["24 mm","44 mm","12 mm","8 mm"],0],["Which segment of the eyeball makes up 5/6 of its volume?",["Anterior segment","Posterior segment","Orbital segment","Ciliary segment"],1],["The visual axis joins the cornea to which structure?",["Optic disk","Fovea centralis","Macula lutea (outer edge)","Ciliary body"],1],["How many cilia does the upper eyelid have?",["50–75","100–150","10–20","200–250"],1],["What is the approximate length of the palpebral fissure?",["12 mm","15 mm","25 mm","44 mm"],2],["Infection of which glands causes a stye?",["Lacrimal glands","Meibomian/sebaceous glands","Ciliary glands","Conjunctival glands"],1],["Where is the lacrimal gland located?",["Lower inner border of the orbit","Upper outer border of the orbit","Center of the cornea","Behind the lens"],1],["What component of tears kills bacteria?",["Melanin","Lysozyme","Hyaluronic acid","Retinol"],1],["Which cranial nerve controls tear secretion?",["Optic (II)","Trigeminal (V)","Facial (VII)","Vestibulocochlear (VIII)"],2],["Which retinal layer is outermost?",["Ganglion cell layer","Pigment epithelial layer","Inner nuclear layer","Layer of rods and cones"],1],["What does the pigment epithelial layer store?",["Vitamin A","Vitamin D","Melanin only, no storage","Hyaluronic acid"],0],["What forms the external limiting membrane of the retina?",["Ganglion cells","Müller fibers","Bipolar cells","Horizontal cells"],1],["Nuclei of rod and cone cells are found in which layer?",["Outer plexiform layer","Outer nuclear layer","Inner nuclear layer","Ganglion cell layer"],1],["The outer plexiform layer is the site of synapses between which cells?",["Bipolar and ganglion cells","Rods/cones and bipolar cells","Horizontal and amacrine cells","Ganglion cells and optic nerve"],1],["Which cells are found in the inner nuclear layer?",["Bipolar cells, horizontal cells, amacrine cells","Rods and cones","Ganglion cells only","Photoreceptor outer segments"],0],["Axons of which cells form the optic nerve?",["Bipolar cells","Amacrine cells","Ganglion cells","Horizontal cells"],2],["What forms the internal limiting membrane?",["Expanded ends of Müller fibers","Ganglion cell axons","Rod and cone nuclei","Pigment epithelium"],0],["The optic disk is also known as the:",["Fovea centralis","Macula lutea","Blind spot","Limbus"],2],["Why is the optic disk insensitive to light?",["It has too much melanin","It lacks rods and cones","It is covered by blood vessels","It has no nerve supply"],1],["The fovea centralis contains:",["Only rods","Only cones","Equal rods and cones","Neither rods nor cones"],1],["Degeneration of the macula lutea leads to:",["Improved night vision","Blindness","Increased IOP","Glaucoma"],1],["What is the approximate volume of aqueous humor?",["0.13 mL","1.3 mL","13 mL","0.013 mL"],0],["What is the pH of aqueous humor?",["6.4","7.0","7.4","8.0"],2],["What structure separates the anterior and posterior chambers?",["The lens","The iris","The cornea","The retina"],1],["Where is aqueous humor formed?",["Ciliary processes","Retina","Lens","Canal of Schlemm"],0],["After the anterior chamber, aqueous humor drains through the:",["Optic nerve","Trabecular meshwork and Canal of Schlemm","Vitreous body","Lacrimal duct"],1],["What is the approximate rate of aqueous humor formation?",["2–3 µL/min","20–30 µL/min","0.2–0.3 µL/min","200–300 µL/min"],0],["What is the normal range of intraocular pressure?",["5–10 mmHg","12–20 mmHg","25–35 mmHg","40–50 mmHg"],1],["What instrument measures intraocular pressure?",["Ophthalmoscope","Tonometer","Otoscope","Audiometer"],1],["In glaucoma, IOP can rise to approximately:",["20–30 mmHg","30–40 mmHg","60–70 mmHg","80–100 mmHg"],2],["What is the focal length of the lens?",["23 mm","44 mm","8 mm","24 mm"],1],["What is the refractive power of the lens?",["12 D","23 D","44 D","8 D"],1],["What structures hold the lens in place?",["Ciliary muscles directly","Suspensory (zonular) ligaments","The iris","The cornea"],1],["Which intrinsic eye muscle narrows the pupil?",["Dilator pupillae","Ciliary muscle","Constrictor pupillae","Superior rectus"],2],["Which intrinsic eye muscle is responsible for accommodation?",["Constrictor pupillae","Ciliary muscle","Dilator pupillae","Lateral rectus"],1],["Which of the following is NOT one of the six extrinsic eye muscles?",["Superior oblique","Medial rectus","Ciliary muscle","Inferior rectus"],2],["At the optic chiasm, which fibers cross the midline?",["Temporal (lateral) fibers","Nasal (medial) fibers","All fibers","No fibers cross"],1],["Fibers from the temporal retina carry information from the:",["Temporal visual field","Nasal visual field","Central visual field only","Peripheral field of the opposite eye"],1],["Where do most optic tract fibers synapse?",["Superior colliculus","Lateral geniculate body","Visual cortex directly","Optic chiasm"],1],["The optic radiation connects the LGB to the:",["Visual cortex","Optic chiasm","Superior colliculus","Cerebellum"],0],["Fibers that bypass the LGB and go to the superior colliculus are involved in:",["Color perception","Visual reflexes","Fine visual acuity","Dark adaptation"],1],["A lesion of the left optic nerve causes:",["Total blindness of the left eye","Bitemporal hemianopia","Right homonymous hemianopia","Left nasal hemianopia"],0],["A lesion of the medial fibers of the optic chiasm causes:",["Binasal hemianopia","Bitemporal hemianopia","Total blindness","Left homonymous hemianopia"],1],["Bitemporal hemianopia is classically caused by:",["A stroke in the occipital lobe","A pituitary tumor pressing on the chiasm","Otosclerosis","Cerebellar damage"],1],["A lesion of the lateral fibers on both sides of the chiasm causes:",["Bitemporal hemianopia","Binasal hemianopia","Total blindness","Homonymous hemianopia"],1],["A lesion of the left optic radiation causes:",["Left homonymous hemianopia","Right homonymous hemianopia","Bitemporal hemianopia","Total blindness of the left eye"],1],["Homonymous hemianopia is best described as:",["Loss of the same-side visual field in both eyes","Loss of the outer visual fields in both eyes","Total blindness in one eye","Loss of central vision only"],0],["Conduction deafness results from a problem in the:",["Cochlea","External or middle ear","Auditory cortex","Vestibulocochlear nerve pathway"],1],["Otosclerosis involves fixation of which structure?",["Malleus to the tympanic membrane","Stapes footplate to the oval window","Incus to the malleus","Cochlea to the vestibule"],1],["Which of these is an ototoxic antibiotic mentioned in the material?",["Penicillin","Gentamicin","Amoxicillin","Doxycycline"],1],["Nerve deafness can result from damage to which nerve?",["Facial (VII)","Vestibulocochlear (VIII)","Trigeminal (V)","Optic (II)"],1],["In the Rinne test, normal hearing shows:",["BC > AC","AC > BC","AC = 0","BC = 0"],1],["In the Rinne test, conduction deafness shows:",["AC > BC","BC > AC","Both absent","Both equal and normal"],1],["In the Rinne test, nerve deafness shows:",["AC > BC","BC > AC","Both AC and BC diminished","No change from normal"],2],["During the Rinne test, where is the tuning fork placed first?",["Vertex of the skull","Mastoid process","Tragus","External auditory meatus only"],1],["In the Weber test, where is the tuning fork placed?",["Mastoid process","Vertex/forehead midline","Tragus","Behind the ear"],1],["In unilateral conduction deafness, the Weber test sound lateralizes to:",["The unaffected ear","The affected ear","Neither ear","Both ears equally"],1],["In unilateral nerve deafness, the Weber test sound lateralizes to:",["The affected ear","The unaffected ear","Neither ear","Both ears equally"],1],["Audiometry is used to:",["Measure intraocular pressure","Measure hearing thresholds across frequencies","Test visual field defects","Test proprioception"],1],["Kinesthesia refers to:",["Absence of sensation","Abnormal sensation","Sensation of movement","Sensation of pain only"],2],["Paresthesia refers to:",["Sensation of movement","Abnormal sensation","Absence of sensation","Normal touch sensation"],1],["Which is classified as a special sensation?",["Touch","Pain","Vision","Proprioception"],2],["Chemoreceptors are stimulated by:",["Light","Chemical stimuli","Mechanical deformation","Temperature changes"],1],["Teleceptors detect stimuli:",["Only through direct contact","At a distance","Only from internal organs","Only from joints"],1],["Interoceptors detect stimuli from:",["The external environment","The internal environment","A distance","Joints only"],1],["A rapidly adapting receptor is best exemplified by:",["Pain receptors","Touch receptors","Osmoreceptors","Baroreceptors"],1],["A non-adapting receptor is best exemplified by:",["Touch receptors","Pain receptors","Meissner's corpuscles","Hair follicle receptors"],1],["The generator (receptor) potential is primarily due to changes in permeability to:",["Potassium","Sodium","Calcium","Chloride"],1],["Meissner's corpuscles are found predominantly in:",["Hairy skin","Non-hairy skin (fingertips, lips)","Joint capsules only","Deep skin layers only"],1],["Which receptor detects deep pressure and high-frequency vibration?",["Merkel's discs","Ruffini's endings","Pacinian corpuscles","Free nerve endings"],2],["Which receptor adapts very slowly and detects skin stretch?",["Meissner's corpuscles","Ruffini's endings","Pacinian corpuscles","Hair follicle receptors"],1],["Crude touch is carried by which tract?",["Dorsal column–medial lemniscal pathway","Anterior spinothalamic tract","Corticospinal tract","Rubrospinal tract"],1],["Fine, discriminative touch is carried by which pathway?",["Anterior spinothalamic tract","Dorsal column–medial lemniscal pathway","Reticulospinal tract","Tectospinal tract"],1],["Cold receptors are carried by which fiber type?",["C fibers","A-delta fibers","Alpha motor fibers","Gamma fibers"],1],["Warm receptors are carried by which fiber type?",["A-delta fibers","C fibers","Alpha motor fibers","Gamma motor fibers"],1],["Fast, sharp, well-localized pain is carried by:",["C fibers","A-delta fibers","Gamma fibers","Alpha motor fibers"],1],["Dull, aching, poorly localized pain is carried by:",["A-delta fibers","C fibers","Alpha motor fibers","Gamma fibers"],1],["Which of these is NOT listed as a chemical pain stimulus?",["Bradykinin","Histamine","Prostaglandins","Acetylcholine"],3],["Referred pain is defined as:",["Pain felt at its true site of origin","Pain felt in a location different from its actual origin","Pain that never resolves","Pain only felt during movement"],1],["Two-point discrimination is best (most sensitive) at the:",["Back","Thigh","Fingertips and lips","Forearm"],2],["The muscle spindle is located:",["At the muscle-tendon junction","In the muscle belly, parallel to extrafusal fibers","In joint capsules","In the skin"],1],["The Golgi tendon organ is located:",["In the muscle belly","At the muscle-tendon junction, in series with fibers","In joint capsules","In the skin"],1],["Which proprioceptor provides a protective reflex against excessive tension?",["Muscle spindle","Golgi tendon organ","Meissner's corpuscle","Ruffini's ending"],1],["Which is considered the dominant contributor to conscious proprioception?",["Joint receptors","Muscle spindles","Free nerve endings","Pacinian corpuscles"],1],["Which cerebellar region is responsible for balance and eye movements?",["Spinocerebellum","Vestibulocerebellum","Cerebrocerebellum","Neocerebellum"],1],["Which cerebellar region is responsible for posture, gait, and muscle tone?",["Vestibulocerebellum","Spinocerebellum","Cerebrocerebellum","Flocculonodular lobe alone"],1],["Damage to the cerebellar vermis primarily causes:",["Limb ataxia","Truncal (gait) ataxia","Total paralysis","Loss of sensation"],1],["Damage to a cerebellar hemisphere causes ataxia on which side?",["Contralateral","Ipsilateral","Bilateral","No lateralization"],1],["Why does unilateral cerebellar damage cause ipsilateral deficits?",["Cerebellar fibers never cross","Cerebellar output pathways cross twice","The cerebellum has no output tracts","Damage always affects both sides equally"],1],["In the DANISH mnemonic, the \"N\" stands for:",["Numbness","Nystagmus","Neuralgia","Nausea"],1],["In the DANISH mnemonic, the \"H\" stands for:",["Hyperreflexia","Hypotonia","Hyperesthesia","Headache"],1],["Dysdiadochokinesia refers to the inability to:",["Feel pain","Perform rapid alternating movements","See color","Hear high frequencies"],1],["Dysmetria is commonly tested using the:",["Rinne test","Finger-to-nose test","Weber test","Romberg test alone"],1],["Intention tremor is associated with damage to which structure?",["Optic chiasm","Superior cerebellar peduncle / dentate nucleus","Lacrimal gland","Cochlea"],1],["Pendular reflexes occur due to:",["Increased muscle tone","Reduced damping from hypotonia","Loss of sensation","Overactive Golgi tendon organs"],1],["A reflex arc's five components, in order, are:",["Effector, afferent nerve, synapse, efferent nerve, receptor","Receptor, afferent nerve, CNS synapse, efferent nerve, effector","Receptor, efferent nerve, synapse, afferent nerve, effector","Synapse, receptor, afferent nerve, effector, efferent nerve"],1],["The stretch reflex is an example of a:",["Polysynaptic reflex arc","Monosynaptic reflex arc","Triple-synapse reflex","Non-reflexive response"],1],["Alpha motor neurons innervate:",["Intrafusal fibers","Extrafusal muscle fibers","Golgi tendon organs directly","Sensory receptors"],1],["Gamma motor neurons innervate:",["Extrafusal muscle fibers","Intrafusal fibers of the muscle spindle","Golgi tendon organs","Skin receptors"],1],["Motor neurons are called the \"final common pathway\" because:",["They are the fastest neurons in the body","They are the sole route for CNS control of muscle activity","They only exist in the brainstem","They never synapse with interneurons"],1]];
+const SUMMARY = [
+{"h":"Part 1 — Sensory Systems", "s":true},
+{"h":"1A. The Eye"},
+{"p":"The eyeball is ~24 mm in diameter: 1/6 anterior segment, 5/6 posterior segment (lined by retina). The optic axis joins the anterior and posterior poles; the visual axis joins the cornea to the fovea centralis — light travels along the visual axis."},
+{"p":"Eyelids: upper lid has 100–150 cilia, lower has 50–75. Infected Meibomian/sebaceous glands cause a stye. Palpebral fissure is ~25 mm long, 12–15 mm wide open. The lacrimal gland (upper-outer orbit) produces hypertonic tears containing lysozyme, draining via lacrimal ducts → lacrimal sac → nasolacrimal duct. Tear secretion is parasympathetic, via cranial nerve VII."},
+{"p":"Retina layers, outer to inner: pigment epithelium (melanin, vitamin A storage, phagocytosis) → rods & cones → external limiting membrane (Müller fibers) → outer nuclear layer → outer plexiform layer → inner nuclear layer (bipolar, horizontal, amacrine cells) → inner plexiform layer → ganglion cell layer (forms optic nerve) → nerve fiber layer → internal limiting membrane."},
+{"p":"Optic disk = blind spot, no rods/cones. Fovea centralis = cones only, sharpest vision, thinnest retina. Macular degeneration causes blindness."},
+{"p":"Vitreous humor: gel of proteoglycans/albumin/hyaluronic acid, maintains shape. Aqueous humor: ~0.13 mL, pH 7.4, formed by ciliary processes at 2–3 µL/min, flows posterior chamber → pupil → anterior chamber → trabecular meshwork → Canal of Schlemm. Normal IOP: 12–20 mmHg (tonometer); glaucoma raises IOP to 60–70 mmHg."},
+{"p":"Lens: biconvex, avascular, focal length 44 mm, power 23 D, held by zonular fibers. Intrinsic muscles: constrictor pupillae (narrows pupil), dilator pupillae (widens), ciliary muscle (accommodation). Six extrinsic muscles: superior/inferior/medial/lateral rectus, superior/inferior oblique."},
+{"p":"Visual pathway: optic nerve → optic chiasm (nasal fibers cross) → optic tract → LGB (thalamus) → optic radiation → visual cortex. Some fibers bypass LGB to the superior colliculus for visual reflexes."},
+{"table":"lesions", "title":"Visual Pathway Lesions"},
+{"h":"1B. The Ear"},
+{"p":"Conduction deafness: external/middle ear problem (earwax, perforated eardrum, otitis media, otosclerosis). Nerve deafness: cochlear/pathway damage (ototoxic drugs like streptomycin/gentamicin, loud noise, CN VIII tumor)."},
+{"table":"rinne", "title":"Rinne Test"},
+{"table":"weber", "title":"Weber Test"},
+{"h":"1C. General Sensory Physiology"},
+{"p":"Key terms: sensation (esthesia), anesthesia (absent), paresthesia (abnormal), kinesthesia (movement). Three types: somatic, visceral, special. Receptors classified by stimulus (chemo/photo/thermo/mechanoreceptors) or location (tele-/extero-/interoceptors/proprioceptors). Adaptation: rapid (touch), slow, or non-adapting (pain). Generator potential is driven by Na+ permeability."},
+{"table":"skin", "title":"Skin Receptors"},
+{"p":"Crude touch → anterior spinothalamic tract. Fine touch → dorsal column–medial lemniscal pathway. Cold receptors peak ~25°C (A-delta fibers); warm peak ~42°C (C fibers). Fast/sharp pain = A-delta fibers; slow/dull pain = C fibers. Pain chemical triggers: bradykinin, histamine, K+, prostaglandins. Referred pain = felt away from true origin. Two-point discrimination is best at fingertips/lips."},
+{"p":"Muscle spindle: in muscle belly, detects length/stretch rate, drives stretch reflex. Golgi tendon organ: at tendon junction, detects tension, protective inhibition. Muscle spindles are the dominant contributor to conscious proprioception."},
+{"h":"Part 2 — Cerebellum", "s":true},
+{"p":"Cerebellum plans/coordinates skilled movement and maintains tone, posture, equilibrium — acting as a comparator between intended and actual movement. Damage causes no weakness/sensory loss, only incoordination. Three zones: vestibulocerebellum (balance/eye movement), spinocerebellum (posture/gait/tone), cerebrocerebellum (planning coordination)."},
+{"p":"Vermis damage → truncal/gait ataxia. Hemisphere damage → limb ataxia, and it's ipsilateral because cerebellar output pathways cross twice."},
+{"table":"danish", "title":"DANISH Signs"},
+{"p":"Vertigo: false sense of movement from asynchronous vestibular firing. Gait ataxia: wide-based staggering gait, titubation. Pendular reflexes: leg swings repeatedly after knee-jerk due to reduced tone damping."},
+{"h":"Part 3 — The Motor System", "s":true},
+{"p":"Motor functions = skeletal muscle contraction, smooth muscle contraction, gland secretion. Levels of integration: spinal cord (simple reflexes) → brainstem (complex responses) → cerebrum (voluntary skills). Muscle spindles and Golgi tendon organs feed spinal cord, cerebellum, and cortex subconsciously."},
+{"p":"Reflex arc: receptor → afferent nerve → CNS synapse → efferent nerve → effector. Monosynaptic (stretch reflex, one synapse, reciprocal inhibition of antagonists) vs. polysynaptic (interneurons involved)."},
+{"p":"Alpha motor neurons innervate extrafusal fibers (regular muscle). Gamma motor neurons innervate intrafusal fibers (inside spindles). Motor neurons are the \"final common pathway.\" Interneurons: ~30x more numerous, fire up to 1500/sec. Renshaw cells: inhibitory, cause lateral inhibition."},
+{"table":"transection", "title":"Spinal Transection Levels"},
+{"p":"Brainstem extends spinal cord function to the head (cranial nerves), and via reticular/vestibular nuclei supports posture and equilibrium against gravity. Mid-mesencephalic transection → decerebrate rigidity (loss of inhibition to anti-gravity muscles)."},
+{"p":"Motor cortex: M1 (primary, initiates activity), M2 (supplementary, planning), M3 (premotor, complex patterns). Direct pathway = corticospinal (pyramidal) tract, fine voluntary control. Indirect pathway = extrapyramidal (rubrospinal, vestibulospinal, reticulospinal, tectospinal); damage causes tone/involuntary movement disorders."},
+{"p":"Basal ganglia (caudate, putamen, globus pallidus, subthalamic nucleus, substantia nigra): control complex motor execution, cognitive sequencing, timing/amplitude of movement."},
+{"p":"Cerebellar zones for movement: central vermis (axial muscles), intermediate zone (distal limbs), lateral zone (cooperates with cortex for rapid sequences). Posture: efferent via alpha motor neurons; afferents from muscle, joint, skin, vestibular system, eyes; coordinated by basal ganglia, brainstem nuclei, reticular formation."}
+]
+;
+
+// ---------- Tab switching ----------
+const tabButtons = document.querySelectorAll('.tab-btn');
+const views = { summary:document.getElementById('view-summary'), flash:document.getElementById('view-flash'), quiz:document.getElementById('view-quiz') };
+tabButtons.forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    tabButtons.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    Object.values(views).forEach(v=>v.classList.add('hidden'));
+    views[btn.dataset.view].classList.remove('hidden');
+  });
+});
+
+// ---------- Summary render ----------
+const tableDefs = {
+  lesions:{cols:["Lesion Site","Resulting Defect"], rows:[
+    ["Left optic nerve","Total blindness, left eye"],
+    ["Right optic nerve","Total blindness, right eye"],
+    ["Lateral fibers, left side of chiasm","Left nasal hemianopia"],
+    ["Lateral fibers, right side of chiasm","Right nasal hemianopia"],
+    ["Lateral fibers, both sides of chiasm","Binasal hemianopia"],
+    ["Medial fibers of chiasm","Bitemporal hemianopia (pituitary tumor)"],
+    ["Left optic radiation","Right homonymous hemianopia"],
+    ["Right optic radiation","Left homonymous hemianopia"]]},
+  rinne:{cols:["Result","Meaning"], rows:[
+    ["AC > BC","Normal hearing"],["BC > AC","Conduction deafness"],["Both diminished","Nerve deafness"]]},
+  weber:{cols:["Finding","Meaning"], rows:[
+    ["Equal both ears","Normal hearing"],["Louder in affected ear","Unilateral conduction deafness"],["Louder in unaffected ear","Unilateral nerve deafness"]]},
+  skin:{cols:["Receptor","Detects"], rows:[
+    ["Free nerve endings","Pain, temperature, crude touch"],
+    ["Meissner's corpuscles","Fine touch, flutter (fingertips/lips)"],
+    ["Merkel's discs","Fine touch, sustained pressure, texture"],
+    ["Pacinian corpuscles","Deep pressure, high-freq vibration"],
+    ["Ruffini's endings","Skin stretch, sustained pressure"]]},
+  danish:{cols:["Letter","Sign"], rows:[
+    ["D","Dysdiadochokinesia / Dysmetria"],["A","Ataxia"],["N","Nystagmus"],
+    ["I","Intention tremor"],["S","Slurred speech"],["H","Hypotonia"]]},
+  transection:{cols:["Level","Effect"], rows:[
+    ["Above C4","Diaphragm impaired (phrenic nerve)"],
+    ["C5–T1","Quadriplegia"],["T2–T12","Paraplegia"]]}
+};
+const summaryHost = document.getElementById('view-summary');
+SUMMARY.forEach(item=>{
+  if(item.h){
+    const el = document.createElement(item.s?'h2':'h3');
+    if(item.s) el.className='part';
+    el.textContent = item.h;
+    summaryHost.appendChild(el);
+  } else if(item.p){
+    const el = document.createElement('p');
+    el.textContent = item.p;
+    summaryHost.appendChild(el);
+  } else if(item.table){
+    const def = tableDefs[item.table];
+    const table = document.createElement('table');
+    const caption = document.createElement('caption');
+    caption.textContent = item.title;
+    table.appendChild(caption);
+    const thead = document.createElement('tr');
+    def.cols.forEach(c=>{ const th=document.createElement('th'); th.textContent=c; thead.appendChild(th); });
+    table.appendChild(thead);
+    def.rows.forEach(r=>{
+      const tr = document.createElement('tr');
+      r.forEach(c=>{ const td=document.createElement('td'); td.textContent=c; tr.appendChild(td); });
+      table.appendChild(tr);
+    });
+    summaryHost.appendChild(table);
+  }
+});
+
+// ---------- Flashcards ----------
+let fcOrder = FLASHCARDS.map((_,i)=>i);
+let fcIndex = 0;
+let fcFlipped = false;
+const fcCard = document.getElementById('fc-card');
+const fcFront = document.getElementById('fc-front-text');
+const fcBack = document.getElementById('fc-back-text');
+const fcProgress = document.getElementById('fc-progress');
+
+function renderFlashcard(){
+  const realIdx = fcOrder[fcIndex];
+  fcFront.textContent = FLASHCARDS[realIdx][0];
+  fcBack.textContent = FLASHCARDS[realIdx][1];
+  fcFlipped = false;
+  fcCard.classList.remove('flipped');
+  fcProgress.textContent = `Card ${fcIndex+1} of ${FLASHCARDS.length}`;
+}
+document.getElementById('fc-stage').addEventListener('click', ()=>{
+  fcFlipped = !fcFlipped;
+  fcCard.classList.toggle('flipped', fcFlipped);
+});
+document.getElementById('fc-next').addEventListener('click', ()=>{
+  fcIndex = (fcIndex+1) % fcOrder.length;
+  renderFlashcard();
+});
+document.getElementById('fc-prev').addEventListener('click', ()=>{
+  fcIndex = (fcIndex-1+fcOrder.length) % fcOrder.length;
+  renderFlashcard();
+});
+document.getElementById('fc-shuffle').addEventListener('click', ()=>{
+  for(let i=fcOrder.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [fcOrder[i],fcOrder[j]] = [fcOrder[j],fcOrder[i]];
+  }
+  fcIndex = 0;
+  renderFlashcard();
+});
+renderFlashcard();
+
+// ---------- Quiz ----------
+let quizOrder = MCQS.map((_,i)=>i);
+let quizIndex = 0;
+let quizScore = 0;
+let quizAnswered = 0;
+let missed = [];
+let locked = false;
+let currentPool = MCQS;
+let currentOrder = quizOrder;
+
+const qText = document.getElementById('q-text');
+const qOptions = document.getElementById('q-options');
+const qFeedback = document.getElementById('q-feedback');
+const quizCount = document.getElementById('quiz-count');
+const quizScoreEl = document.getElementById('quiz-score');
+const quizProgressFill = document.getElementById('quiz-progress-fill');
+const quizNextBtn = document.getElementById('quiz-next');
+const quizActive = document.getElementById('quiz-active');
+const quizEnd = document.getElementById('quiz-end');
+
+function startQuiz(pool){
+  currentPool = pool;
+  currentOrder = pool.map((_,i)=>i);
+  quizIndex = 0; quizScore = 0; quizAnswered = 0; missed = [];
+  quizActive.classList.remove('hidden');
+  quizEnd.classList.add('hidden');
+  renderQuestion();
+}
+
+function renderQuestion(){
+  locked = false;
+  const idx = currentOrder[quizIndex];
+  const [q, opts, correct] = currentPool[idx];
+  qText.textContent = q;
+  qOptions.innerHTML = '';
+  const letters = ['A','B','C','D'];
+  opts.forEach((opt,i)=>{
+    const div = document.createElement('div');
+    div.className = 'q-option';
+    div.innerHTML = `<span class="letter">${letters[i]}</span><span>${opt}</span>`;
+    div.addEventListener('click', ()=> selectAnswer(i, correct, div));
+    qOptions.appendChild(div);
+  });
+  qFeedback.classList.add('hidden');
+  quizNextBtn.classList.add('hidden');
+  quizCount.textContent = `Question ${quizIndex+1} of ${currentPool.length}`;
+  quizScoreEl.textContent = `Score: ${quizScore} / ${quizAnswered}`;
+  quizProgressFill.style.width = `${((quizIndex)/currentPool.length)*100}%`;
+}
+
+function selectAnswer(chosenIdx, correctIdx, el){
+  if(locked) return;
+  locked = true;
+  quizAnswered++;
+  const allOptions = qOptions.querySelectorAll('.q-option');
+  allOptions.forEach(o=>o.classList.add('locked'));
+  if(chosenIdx === correctIdx){
+    quizScore++;
+    el.classList.add('correct');
+    qFeedback.textContent = 'Correct!';
+    qFeedback.className = 'q-feedback correct';
+  } else {
+    el.classList.add('wrong');
+    allOptions[correctIdx].classList.add('correct');
+    qFeedback.textContent = 'Not quite — correct answer highlighted above.';
+    qFeedback.className = 'q-feedback wrong';
+    const idx = currentOrder[quizIndex];
+    missed.push(currentPool[idx]);
+  }
+  qFeedback.classList.remove('hidden');
+  quizNextBtn.classList.remove('hidden');
+  quizScoreEl.textContent = `Score: ${quizScore} / ${quizAnswered}`;
+  quizProgressFill.style.width = `${((quizIndex+1)/currentPool.length)*100}%`;
+}
+
+quizNextBtn.addEventListener('click', ()=>{
+  if(quizIndex < currentPool.length - 1){
+    quizIndex++;
+    renderQuestion();
+  } else {
+    endQuiz();
+  }
+});
+
+document.getElementById('quiz-exit').addEventListener('click', ()=>{
+  endQuiz();
+});
+
+function endQuiz(){
+  quizActive.classList.add('hidden');
+  quizEnd.classList.remove('hidden');
+  const pct = quizAnswered ? Math.round((quizScore/quizAnswered)*100) : 0;
+  document.getElementById('quiz-final-score').textContent = `${quizScore} / ${quizAnswered}`;
+  let msg = `${pct}% correct on the questions you answered.`;
+  if(missed.length) msg += ` ${missed.length} to review.`;
+  document.getElementById('quiz-final-msg').textContent = msg;
+  document.getElementById('quiz-review-missed').classList.toggle('hidden', missed.length===0);
+}
+
+document.getElementById('quiz-restart').addEventListener('click', ()=> startQuiz(MCQS));
+document.getElementById('quiz-review-missed').addEventListener('click', ()=>{
+  if(missed.length) startQuiz(missed.slice());
+});
+
+startQuiz(MCQS);
+</script>
+</body>
+</html>
