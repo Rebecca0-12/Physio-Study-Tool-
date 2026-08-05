@@ -1,6 +1,6 @@
 # Physio Study Tool
 
-Live Demo: 
+[view live demo} (https://sensory-motor-physiology.netlify.app)
 
 A browser-based study tool built to make reviewing Sensory & Motor Physiology faster and easier.
 
